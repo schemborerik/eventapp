@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Create Event</title>
+</head>
+<body>
+
+	<a href="./home">Home</a>
+	<a href="./discover">Discover</a>
+	<a href="./profile">Profile</a>
+	<a href="./createEvent">Create Event</a>
+	<a href="./signout">Signout</a>
+	
+	<form enctype="multipart/form-data" action="/createEvent" method="POST">
+		<select>
+			<option value="volvo">Pick an event category</option>
+			<option value="saab">Fill</option>
+			<option value="saab">From</option>
+			<option value="fiat">DB</option>
+		</select>
+		<br>
+		<label for="eventTitle">Event Title</label>
+		<input name="eventTitle" type="text" id="eventTitle" value="Event Title">
+		<br>
+		<textarea name="eventDescription" rows="4" cols="30">Whats happening?</textarea>
+		<br>
+		<label for="fileToUpload">Upload Image</label>
+		<input type="file" name="fileToUpload" id="fileToUpload" accept="image/*">
+		<br>
+		<br>
+		<!--<select>
+			<option value="volvo">Single Event</option>
+			<option value="saab">Multiple Instances</option>
+			<option value="saab">Recurring</option>
+		</select>-->
+		<br>
+		<br>
+		<input id="datePicker" type="datetime-local" step=60 onclick="">
+		<br>
+		<div class="form-horizontal">
+		<div class="form-group">
+			<label class="col-sm-1 control-label">Location:</label>
+			<div class="col-sm-5"><input type="text" class="form-control" id="us3-address"/></div>
+		</div>	
+		<div id="us3" style="width: 500px; height: 400px;"></div>
+		<br>
+		<button type="button" onclick="addEventInstance()">Add Event Instance</button>
+		<ul id="eventInstances">
+		</ul>
+		<br>
+		<input type="hidden" id="eventInstancesPost" name="eventInstances">
+		
+		<br>
+		<input type="submit" value="Post">
+	</form>
+
+</body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script type="text/javascript" src='http://maps.google.com/maps/api/js?sensor=false&libraries=places'></script>
+<script src="javascripts/locationpicker.jquery.js"></script>
+
+<script type="text/javascript">
+	var eventInstances = [];
+	var eventLocation = [30.0, -90.0];;
+
+	$(document).ready( function() {
+		var d = new Date();
+		$('#datePicker').val(d.toJSON().slice(0,16));
+
+		$('#us3').locationpicker({
+			location: {latitude: eventLocation[0], longitude: eventLocation[1]},
+			radius: 1,
+			inputBinding: {
+				locationNameInput: $('#us3-address')
+			},
+			enableAutocomplete: true,
+			onchanged: function (currentLocation, radius, isMarkerDropped) {
+				var lat = currentLocation.latitude;
+				var lon = currentLocation.longitude;
+				eventLocation = {
+					type: "Point",
+					coordinates :	[lon,lat ] };
+				//console.log(eventLocation);
+			}
+		});
+	});
+	
+	function addEventInstance() {
+		var e = {date: $('#datePicker').val(), loc: eventLocation};
+		eventInstances.push(e);
+		//console.log(eventInstances);
+		$('#eventInstances').append("<li>Date: " + e.date + "   Location: " + e.loc + "</li>");
+		$('#eventInstancesPost').val(JSON.stringify(eventInstances));
+	}
+	
+	/*function addEventToDB() {
+		$.ajax({
+		type: 'POST',
+		url: './php/getmetadata.php',
+		data: { 
+			title: ,
+			description: ,
+			eventInstances: eventInstances,
+			
+		},
+		success: function(data) { 
+			console.log(data);
+			// Fill data in
+		},
+	});
+	}*/
+	
+	function getUrlParameter(sParam)
+	{
+    var sPageURL = window.location.search.substring(1);
+    var sURLVariables = sPageURL.split('&');
+    for (var i = 0; i < sURLVariables.length; i++) 
+    {
+			var sParameterName = sURLVariables[i].split('=');
+			if (sParameterName[0] == sParam) 
+			{
+				return sParameterName[1];
+			}
+    }
+	}
+</script>
+
+</html>

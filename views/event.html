@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Profile</title>
+</head>
+<body>
+
+	<a href="./home">Home</a>
+	<a href="./discover">Discover</a>
+	<a href="./profile">Profile</a>
+	<a href="./createEvent">Create Event</a>
+	<a href="./signout">Signout</a>
+	
+	<h1 id='title'></h1>
+	<p id='description'></p>
+	<img id='event_img' style='width:304px;height:228px'>
+	<br>
+	<button id='follow' onclick="follow()">Follow</button>
+	
+	<br>
+	<br>
+	<a id='post'>Post</a>
+	
+	<br>
+	<table id="postsTable" border="1">
+	
+	</table>
+	
+	
+
+</body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script type="text/javascript">
+	var eid = getUrlParameter('eid');
+
+	$.ajax({
+		type: 'GET',
+		url: './eventInfo',
+		data: { eventid: eid },
+		success: function(data) { 
+			console.log(data);
+			// Fill data in
+			$('#title').text(data.title);
+			$('#description').text(data.description);
+			$('#event_img').attr('src', './img/' + data.image);
+		},
+	});
+	
+	$.ajax({
+		type: 'GET',
+		url: './eventPosts',
+		data: { eventid: eid },
+		success: function(data) { 
+			console.log(data);
+			// Fill data in
+			for(var i=0; i<data.length; ++i) {
+				$('#postsTable').append("<tr><td><img src='./img/" + data[i].image + "' style='width:304px;height:228px'></td><td>" + data[i].created_by + "</td><td>" + data[i].message + "</td></tr>");
+			}
+		},
+	});
+	
+	$('#post').attr('href', './post?eventid=' + eid);
+	
+	function follow() {
+		$.ajax({
+			type: 'POST',
+			url: './followEvent',
+			data: { eid: eid},
+			success: function(data) { 
+				console.log(data);
+				$('#follow').hide();
+			},
+		});
+	}
+	
+	function getUrlParameter(sParam)
+	{
+    var sPageURL = window.location.search.substring(1);
+    var sURLVariables = sPageURL.split('&');
+    for (var i = 0; i < sURLVariables.length; i++) 
+    {
+			var sParameterName = sURLVariables[i].split('=');
+			if (sParameterName[0] == sParam) 
+			{
+				return sParameterName[1];
+			}
+    }
+	}     
+</script>
+
+</html>
